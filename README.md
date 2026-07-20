@@ -4,8 +4,6 @@
 
 A production-ready skill that empowers Hermes (and compatible agents) to manage the entire OpenShip infrastructure lifecycle — end to end.
 
-![OpenShip Skill for Hermes Banner](ChatGPT%20Image%20Jul%2020%2C%202026%2C%2009_29_45%20AM.png)
-
 ## What This Skill Does
 
 This skill turns Hermes into a capable OpenShip operator. Once installed, the agent can:
@@ -41,12 +39,10 @@ You can also point Hermes at this repository if your setup supports remote skill
 
 ```
 .
-├── SKILL.md                                      # The skill itself (Hermes-ready)
-├── README.md                                     # This file
-├── LICENSE                                       # License
-├── ChatGPT Image Jul 20, 2026, 09_29_45 AM.png   # Promotional banner
-└── assets/
-    └── .gitkeep
+├── SKILL.md          # The skill itself (Hermes-ready)
+├── README.md         # This file
+├── LICENSE           # License
+└── assets/           # Reserved for future assets
 ```
 
 ## Sources & Credits
