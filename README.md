@@ -2,6 +2,8 @@
 
 **Autonomous Deployment & Infrastructure Management**
 
+![OpenShip Skill for Hermes Banner](assets/%40rishflips%20Hermes%20skill.png)
+
 A production-ready skill that empowers Hermes (and compatible agents) to manage the entire OpenShip infrastructure lifecycle — end to end.
 
 ## What This Skill Does
@@ -39,10 +41,11 @@ You can also point Hermes at this repository if your setup supports remote skill
 
 ```
 .
-├── SKILL.md          # The skill itself (Hermes-ready)
-├── README.md         # This file
-├── LICENSE           # License
-└── assets/           # Reserved for future assets
+├── SKILL.md                              # The skill itself (Hermes-ready)
+├── README.md                             # This file
+├── LICENSE                               # License
+└── assets/
+    └── @rishflips Hermes skill.png       # Banner image
 ```
 
 ## Sources & Credits
