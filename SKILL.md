@@ -9,7 +9,7 @@ You are an expert OpenShip operator. Use this skill to fully handle deployment, 
 
 ## Core Concepts
 
-OpenShip is an open-source, self-hostable deployment platform (Apache-2.0) that provides Vercel/Netlify-like experience on any Linux server, VPS, bare metal, or homelab.
+OpenShip is an open-source, self-hostable deployment platform (Apache-2.0) that provides a Vercel/Netlify-like experience on any Linux server, VPS, bare metal, or homelab.
 
 - **Zero-config philosophy**: Point at a Git repo or local directory. Automatic stack detection (Node, Python, Go, Rust, PHP, Ruby, Java, .NET, Docker, monorepos). Builds, configures, and deploys without YAML pipelines or config files.
 - **Interfaces**:
@@ -26,7 +26,7 @@ OpenShip is an open-source, self-hostable deployment platform (Apache-2.0) that 
 - **Portability**: Standard Docker containers. Export and migrate freely. No lock-in.
 - **Architecture**: Monorepo with Turborepo + pnpm + Bun. Apps: `api` (Hono), `dashboard` (Next.js), `web` (marketing), `cli`, `desktop`. Packages: `adapters` (DockerAdapter for self-host, OblienAdapter for cloud), `core`, `db` (Drizzle), `ui`.
 
-Latest status (as of mid-2026): Production-ready core (v0.1.x). Actively developed. Roadmap includes multi-node clusters, load-balancing UI, private networking, advanced monitoring, visual CI/CD.
+**Latest status (as of 2026-07-21)**: Production-ready core on **v0.2.x**. Actively developed (5.6k+ stars). Roadmap includes multi-node clusters, load-balancing UI, private networking, advanced monitoring, and visual CI/CD pipelines.
 
 Official resources:
 - Repo: https://github.com/oblien/openship
@@ -51,15 +51,16 @@ curl -fsSL https://get.openship.io | sh
 # bun add -g openship
 ```
 
-Verify:
+Verify and keep updated:
 ```bash
 openship --version
 openship doctor
+openship update          # update CLI + server components
 ```
 
-### Start Local Platform (Development / Desktop-like)
+### Start Local Platform
 ```bash
-openship up                    # Background service (systemd/launchd), API :4000, dashboard :3001, embedded DB. Starts on boot.
+openship up                    # Background service (systemd/launchd), API :4000, dashboard :3001. Starts on boot.
 openship up --foreground       # Attached one-off
 openship up --no-ui            # API only
 openship open                  # Open dashboard
@@ -67,72 +68,67 @@ openship stop                  # Stop service
 openship status                # Health check
 ```
 
-### Self-hosted on Remote Server (Docker Compose Recommended for Agents)
+### Self-hosted on Remote Server (Docker Compose)
 ```bash
 git clone https://github.com/oblien/openship.git
 cd openship
 cp .env.example .env
-# Edit .env with secrets (generate strong values for DATABASE_URL, secrets, etc.)
+# Edit .env with secrets
 docker compose up -d
 ```
 - Dashboard: http://server:3001
 - API: http://server:4000
 
-For production self-host, prefer the CLI service mode after installing on the target machine, or use the desktop app to connect remote servers.
-
 ### Desktop App
 ```bash
 openship install               # Downloads latest verified AppImage/DMG/ZIP and launches
+openship install cache         # Manage local download cache (list / verify / clean)
 ```
-Or direct downloads from GitHub releases.
 
-### Connect to Remote / Cloud Instance
+### Authentication & Contexts (Important for Agents)
 ```bash
-openship --api-url https://your-server.example.com --token <PAT>
-# Create PAT in dashboard Settings.
-openship context list
-openship context use <name>
+openship login                 # Interactive or with --token <opsh_pat_...>
 openship logout
-```
+openship token                 # Manage Personal Access Tokens
 
-Always run `openship doctor` after setup to diagnose config, connectivity, runtime, tokens.
+# Named connection contexts (recommended for multi-server / cloud)
+openship context list          # or: openship ctx ls
+openship context use <name>
+openship context add <name> --api-url https://... --token <pat> --use
+openship context rm <name>
+```
+Always run `openship doctor` after setup or context switches.
 
 ## Project Lifecycle (Core Workflow)
 
 ### 1. Prepare Source
-- Local directory or Git repo.
-- Supported: any language that builds to a container or has standard build (package.json, requirements.txt, go.mod, Cargo.toml, Dockerfile, docker-compose.yml, monorepos).
-- Prefer including a Dockerfile for complex apps. OpenShip auto-detects otherwise.
+Local directory or Git repo. Supports any language that builds to a container or has standard build files. Prefer a Dockerfile for complex apps.
 
 ### 2. Initialize / Link Project
 ```bash
 cd /path/to/your-app
-openship init                  # Interactive: select or create project, choose environment
-# Non-interactive:
+openship init                  # Interactive
 openship init --project proj_xxx --environment production
 ```
-This writes `.openship/project.json` linking the directory.
+Writes `.openship/project.json`.
 
 ### 3. Deploy
 ```bash
 openship deploy                # Production (default)
-openship deploy --env preview  # Preview environment
+openship deploy --env preview
 openship deploy --branch main --commit <sha>
-openship deploy --smart-route  # Only rebuild changed services
+openship deploy --smart-route  # Rebuild only changed services
 ```
-- Builds locally (or on server depending on mode), ships containers, configures networking/SSL/domains if set, starts services.
-- Automatic SSL via Let's Encrypt.
-- Live build logs available via CLI or dashboard.
 
 ### 4. Manage Projects
 ```bash
 openship project list
 openship project get <id>
 openship project create --name my-app
-openship project env <id>      # Manage environment variables
-openship project connect <id> example.com   # Custom domain + auto SSL
+openship project env <id>
+openship project connect <id> example.com
 openship project enable|disable <id>
-openship project logs <id>     # Runtime logs
+openship project logs <id>
 ```
 
 ### 5. Deployments & Rollbacks
@@ -142,138 +138,94 @@ openship deployment inspect <deploymentId>
 openship deployment redeploy <deploymentId>
 openship deployment rollback <deploymentId>
 openship deployment cancel <deploymentId>
-openship logs <deploymentId>   # Or stream with --follow if supported
+openship logs <deploymentId>
 ```
 
 ### 6. Multi-Service / Compose
-Existing `docker-compose.yml` can be deployed as-is. Use `openship service` subcommands for lifecycle, env, drift detection.
+Existing `docker-compose.yml` deploys as-is. Use `openship service` subcommands for lifecycle, env, and drift.
 
 ## Infrastructure Management
 
 ### Domains & SSL
 ```bash
-openship domain ...            # Add, verify DNS, manage certificates
-# Or via project connect
+openship domain ...
+# or via: openship project connect <id> example.com
 ```
-- Unlimited domains, wildcards, auto-renewal.
-- Automatic Let's Encrypt.
+Unlimited domains, wildcards, automatic Let's Encrypt + renewal.
 
 ### Servers (Self-host)
 ```bash
-openship server ...            # Add SSH servers, install Docker/git/OpenResty/certbot, etc.
+openship server ...            # Add SSH servers, bootstrap Docker/git/OpenResty/certbot
 ```
-Connect any Hetzner, DigitalOcean, Linode, OVH, bare metal, or home lab machine.
 
 ### Databases & Backends
-Managed via dashboard or API (one-click Postgres/MySQL/Mongo/Redis). Attach to projects. Volumes persisted. Workers and WebSockets supported.
+Managed via dashboard or API (Postgres, MySQL, MongoDB, Redis). Volumes persisted.
 
 ### Backups
 ```bash
 openship backup ...            # Policies, runs, restores, destinations
 ```
-Scheduled DB + volume backups, one-click restore, export.
 
 ### Mail
-Built-in SMTP (iRedMail based). Configure DKIM/SPF/DMARC. No external Mailgun/SES required for many use cases.
 ```bash
-openship mail ...
+openship mail ...              # Built-in SMTP (DKIM/SPF/DMARC)
+```
+
+### System / Instance
+```bash
+openship system ...            # Instance settings, onboarding, migration, data transfer
 ```
 
 ### Monitoring & Scaling
-- Real-time container metrics, resource usage, live logs.
-- Auto-scaling on cloud.
-- Multi-node ready on self-host.
+Real-time metrics, live logs. Auto-scaling on cloud, multi-node ready on self-host.
 
 ## Automation & Agent Integration
 
-### CLI for Scripting
-All major actions are CLI-first and non-interactive where possible (flags for project, env, etc.). Use in shell scripts, CI, or agent tool calls.
-
-### REST API
-Full control over projects, deployments, domains, logs, etc. Authenticate with PAT. Example pattern: `openship api <path>` for ad-hoc authenticated requests (similar to `gh api`).
-
-### MCP (Model Context Protocol)
-OpenShip exposes an MCP server for AI agents. Connect Hermes / Claude / Cursor / any MCP client to perform deployment actions naturally:
-- Deploy, rollback, inspect status, manage domains, view logs, etc.
-When available, prefer MCP tools over raw CLI for higher-level agent reasoning. Discover tools via the MCP connection. Fallback to CLI if MCP is not yet configured on the instance.
-
-### Contexts
-```bash
-openship context (ctx) list|use|add|rm
-```
-Switch between local, multiple remote servers, and cloud instances seamlessly.
+- Prefer non-interactive CLI flags and `--json` where available.
+- Use `openship api <path>` for direct authenticated API calls (similar to `gh api`).
+- MCP server is available for higher-level agent tool use. Prefer MCP when connected; fall back to CLI.
+- Always verify with `openship status` + `openship doctor` before and after major actions.
 
 ## Common Autonomous Workflows
 
-### Deploy a New App from Local Directory
-1. Ensure OpenShip is running (`openship up` or remote context active).
-2. `cd app && openship init` (or create project first via `openship project create`).
-3. Set any env vars: `openship project env <id> ...`
-4. `openship deploy`
-5. Optionally `openship project connect <id> domain.com`
-6. Verify with `openship status`, `openship project logs <id>`, and HTTP check.
-7. Report URL, status, and any warnings.
+**Deploy new app**  
+1. Ensure platform is running / correct context is active.  
+2. `openship init` → set env vars → `openship deploy`.  
+3. Optionally connect domain.  
+4. Verify status + logs + HTTP.
 
-### Push-to-Deploy / Preview Environments
-- Link Git repo.
-- Use dashboard or API webhooks for automatic deploys on push.
-- `openship deploy --env preview` for branch previews.
-- Rollback with `openship deployment rollback`.
+**Preview / PR environments**  
+`openship deploy --env preview`
 
-### Add Custom Domain + SSL
-1. Ensure DNS A/AAAA or CNAME points to the server IP.
-2. `openship project connect <id> example.com` or domain commands.
-3. Wait for verification and cert issuance (automatic).
-4. Confirm with browser or `curl -I https://example.com`.
+**Custom domain + SSL**  
+Ensure DNS points correctly → `openship project connect <id> domain.com` → wait for cert.
 
-### Set Up Self-Hosted Server
-1. Provision Linux VPS.
-2. Install CLI on the server or use desktop to add via SSH.
-3. `openship server ...` to bootstrap Docker and dependencies.
-4. Deploy projects targeting that server.
-5. Configure backups and monitoring.
+**Self-hosted server bootstrap**  
+Provision VPS → `openship server ...` → deploy projects → configure backups.
 
-### Troubleshooting Sequence
-1. `openship doctor`
-2. `openship status`
-3. Check logs: `openship logs ...` or `openship project logs`
-4. Inspect deployment: `openship deployment inspect`
-5. Redeploy or rollback.
-6. For build failures: examine detected stack, Dockerfile, env vars, resource limits.
-7. For SSL: verify DNS propagation, port 80/443 open, certbot status.
-8. For connectivity: confirm API URL, token validity, firewall.
-
-### Migration / Export
-Containers are standard Docker. Use backup/export features or `docker save`/`docker compose` to move. Zero proprietary formats.
+**Troubleshooting sequence**  
+1. `openship doctor`  
+2. `openship status`  
+3. Logs / `deployment inspect`  
+4. Redeploy or rollback  
+5. Check DNS / firewall / resources for SSL or connectivity issues.
 
 ## Best Practices for Agent Operation
 
-- Always run `openship doctor` and `openship status` at the start of a session and after major changes.
-- Prefer non-interactive flags. Detect current linked project from `.openship/project.json` when present.
-- For long-running builds/deploys: stream logs if possible; poll status; do not block indefinitely without progress reporting.
-- Security: Never hardcode PATs or secrets. Use environment variables or secure context switching. Prefer least-privilege tokens.
-- Resource awareness: Check server capacity before large deploys. Prefer smart-route and incremental rebuilds.
-- Idempotency: Many commands are safe to re-run. Prefer create-or-update patterns.
-- Reporting: After any task, summarize what was done, current state (URLs, deployment ID, health), next recommended actions, and any residual issues.
-- When GUI is required (complex domain DNS UI, visual metrics): instruct the user clearly or open the dashboard (`openship open`) and provide exact navigation steps.
-- Fallback: If OpenShip is unavailable, fall back to pure Docker/Compose guidance while noting the OpenShip advantages.
+- Always start with `openship doctor` and `openship status`.
+- Prefer named contexts over ad-hoc flags for multi-environment work.
+- Never hardcode PATs. Use `openship login` / context system.
+- Prefer `--smart-route` and incremental deploys when possible.
+- After any task: report what was done, current URLs/IDs/health, and next recommended steps.
+- Escalate only when human action is required (DNS at registrar, domain purchase, cloud billing, etc.).
 
 ## Decision Guide
 
 - Simple local test → `openship up` + `openship deploy`
-- Production on own VPS → Install CLI on server or Docker Compose + remote context
+- Production on own VPS → CLI service mode or Docker Compose + remote context
 - Team / multi-user → Web dashboard + PATs + contexts
-- Full automation / CI → CLI + REST/MCP
-- Complex multi-service → Docker Compose support + service management
-- Database needed → Use managed service attachment rather than external
-- Email → Prefer built-in mail server for simplicity
+- Full automation → CLI + REST / MCP
+- Complex multi-service → Docker Compose support + `openship service`
+- Database / mail / backups → Use built-in managed services
 
-## Error Handling Patterns
-
-- Build failure → Inspect detected framework, logs, Dockerfile presence, missing env, resource limits. Suggest fixes or provide corrected Dockerfile.
-- Deploy stuck → Cancel, inspect, check server disk/CPU, restart service.
-- Domain not resolving → DNS check (dig/nslookup), propagation wait, firewall.
-- Auth errors → Re-create PAT, check context, logout/login.
-- Version issues → `openship --version`, update via reinstall or package manager.
-
-This skill equips you to treat OpenShip as a first-class, fully autonomous deployment backend. Execute tasks completely, verify outcomes, and only escalate when human decision (domain purchase, DNS at registrar, payment for cloud, etc.) is required.
+This skill equips you to treat OpenShip as a first-class, fully autonomous deployment backend. Execute tasks completely, verify outcomes, and only escalate when human decision is required.
