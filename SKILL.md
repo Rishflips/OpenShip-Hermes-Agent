@@ -26,7 +26,7 @@ OpenShip is an open-source, self-hostable deployment platform (Apache-2.0) that 
 - **Portability**: Standard Docker containers. Export and migrate freely. No lock-in.
 - **Architecture**: Monorepo with Turborepo + pnpm + Bun. Apps: `api` (Hono), `dashboard` (Next.js), `web` (marketing), `cli`, `desktop`. Packages: `adapters` (DockerAdapter for self-host, OblienAdapter for cloud), `core`, `db` (Drizzle), `ui`.
 
-**Latest status (as of 2026-07-21)**: Production-ready core on **v0.2.x**. Actively developed (5.6k+ stars). Roadmap includes multi-node clusters, load-balancing UI, private networking, advanced monitoring, and visual CI/CD pipelines.
+**Latest status (as of 2026-07-23)**: Production-ready core on **v0.2.3**. Actively developed (7.1k+ stars). Roadmap includes multi-node clusters, load-balancing UI, private networking, advanced monitoring, and visual CI/CD pipelines.
 
 Official resources:
 - Repo: https://github.com/oblien/openship
