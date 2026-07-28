@@ -26,7 +26,7 @@ OpenShip is an open-source, self-hostable deployment platform (Apache-2.0) that 
 - **Portability**: Standard Docker containers. Export and migrate freely. No lock-in.
 - **Architecture**: Monorepo with Turborepo + pnpm + Bun. Apps: `api` (Hono), `dashboard` (Next.js), `web` (marketing), `cli`, `desktop`. Packages: `adapters` (DockerAdapter for self-host, OblienAdapter for cloud), `core`, `db` (Drizzle), `ui`.
 
-**Latest status (as of 2026-07-23)**: Production-ready core on **v0.2.3**. Actively developed (7.1k+ stars). Roadmap includes multi-node clusters, load-balancing UI, private networking, advanced monitoring, and visual CI/CD pipelines.
+**Latest status (as of 2026-07-28)**: Production-ready core on **v0.4.5**. Actively developed (9.1k+ stars). Self-hosting is free. Roadmap includes multi-node clusters, load-balancing UI, private networking, advanced monitoring, and visual CI/CD pipelines.
 
 Official resources:
 - Repo: https://github.com/oblien/openship
@@ -58,23 +58,21 @@ openship doctor
 openship update          # update CLI + server components
 ```
 
-### Start Local Platform
+### Start Local / Self-hosted Platform
 ```bash
-openship up                    # Background service (systemd/launchd), API :4000, dashboard :3001. Starts on boot.
-openship up --foreground       # Attached one-off
-openship up --no-ui            # API only
-openship open                  # Open dashboard
-openship stop                  # Stop service
-openship status                # Health check
+openship up                              # Guided setup + background service
+openship up --public-url <domain>        # Expose publicly
+openship up --foreground                 # Attached one-off
+openship open                            # Open dashboard
+openship stop                            # Stop service
+openship status                          # Health check
 ```
 
-### Self-hosted on Remote Server (Docker Compose)
+### Self-hosted via Docker Compose (Linux)
 ```bash
-git clone https://github.com/oblien/openship.git
-cd openship
+git clone https://github.com/oblien/openship.git && cd openship
 cp .env.example .env
-# Edit .env with secrets
-docker compose up -d
+docker compose --env-file .env -f docker/docker-compose.yml up -d
 ```
 - Dashboard: http://server:3001
 - API: http://server:4000
