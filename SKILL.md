@@ -11,7 +11,7 @@ You are an expert OpenShip operator. Use this skill to fully handle deployment, 
 
 OpenShip is an open-source, self-hostable deployment platform (Apache-2.0) that provides a Vercel/Netlify-like experience on any Linux server, VPS, bare metal, or homelab.
 
-- **Zero-config philosophy**: Point at a Git repo or local directory. Automatic stack detection (Node, Python, Go, Rust, PHP, Ruby, Java, .NET, Docker, monorepos). Builds, configures, and deploys without YAML pipelines or config files.
+- **Zero-config philosophy**: Point at a Git repo or local directory. Automatic stack detection (Node, Python, Go, Rust, PHP, Ruby, Java, .NET, Docker, monorepos, TanStack Start). Builds, configures, and deploys without YAML pipelines or config files.
 - **Interfaces**:
   - CLI (`openship`) — primary for agents and automation.
   - Desktop app — GUI with real-time logs.
@@ -21,12 +21,12 @@ OpenShip is an open-source, self-hostable deployment platform (Apache-2.0) that 
   - Local (desktop/CLI builds on your machine, ships only final containers).
   - Self-hosted on any Linux server (Docker-based).
   - Openship Cloud (managed, powered by Oblien infra).
-- **Full-stack services** (one-click or managed): Postgres, MySQL, MongoDB, Redis, workers, WebSockets, object storage, built-in SMTP (DKIM/SPF/DMARC), CDN (edge caching, HTTP/3, Brotli), automatic Let's Encrypt SSL (wildcards, unlimited domains), scheduled backups + one-click restore, monitoring (live logs, metrics), auto-scaling (cloud) / multi-node ready (self-host).
+- **Full-stack services** (one-click or managed): Postgres, MySQL, MongoDB, Redis, workers, WebSockets, object storage, built-in SMTP (DKIM/SPF/DMARC), CDN (edge caching, HTTP/3, Brotli), automatic Let's Encrypt SSL (wildcards, unlimited domains, alternate ACME CAs + EAB), scheduled backups + one-click restore, monitoring (live logs, metrics), auto-scaling (cloud) / multi-node ready (self-host).
 - **Environments**: production (default), preview (per branch/PR), staging.
 - **Portability**: Standard Docker containers. Export and migrate freely. No lock-in.
 - **Architecture**: Monorepo with Turborepo + pnpm + Bun. Apps: `api` (Hono), `dashboard` (Next.js), `web` (marketing), `cli`, `desktop`. Packages: `adapters` (DockerAdapter for self-host, OblienAdapter for cloud), `core`, `db` (Drizzle), `ui`.
 
-**Latest status (as of 2026-07-31)**: Production-ready core on **v0.4.8**. Actively developed (9.9k+ stars). Self-hosting is free. Roadmap includes multi-node clusters, load-balancing UI, private networking, advanced monitoring, and visual CI/CD pipelines.
+**Latest status (as of 2026-08-04)**: Production-ready core on **v0.5.0**. Actively developed (10.2k+ stars). Self-hosting is free. Roadmap includes multi-node clusters, load-balancing UI, private networking, advanced monitoring, and visual CI/CD pipelines.
 
 Official resources:
 - Repo: https://github.com/oblien/openship
@@ -149,7 +149,7 @@ Existing `docker-compose.yml` deploys as-is. Use `openship service` subcommands 
 openship domain ...
 # or via: openship project connect <id> example.com
 ```
-Unlimited domains, wildcards, automatic Let's Encrypt + renewal.
+Unlimited domains, wildcards, automatic Let's Encrypt + renewal, alternate ACME CAs and EAB support.
 
 ### Servers (Self-host)
 ```bash
@@ -181,7 +181,7 @@ Real-time metrics, live logs. Auto-scaling on cloud, multi-node ready on self-ho
 
 - Prefer non-interactive CLI flags and `--json` where available.
 - Use `openship api <path>` for direct authenticated API calls (similar to `gh api`).
-- MCP server is available for higher-level agent tool use. Prefer MCP when connected; fall back to CLI.
+- MCP server is available for higher-level agent tool use (with improved access control). Prefer MCP when connected; fall back to CLI.
 - Always verify with `openship status` + `openship doctor` before and after major actions.
 
 ## Common Autonomous Workflows
